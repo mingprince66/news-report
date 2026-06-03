@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>社会热点新闻数据爬取与公有云实时监测系统 | 云计算与大数据技术大作业</title>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', 'Microsoft YaHei', 'SimHei', 'PingFang SC', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #1a1a2e;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+            color: white;
+            padding: 50px 20px;
+            text-align: center;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+        .header h1 {
+            font-size: 32px;
+            margin-bottom: 15px;
+            letter-spacing: 1px;
+        }
+        .student-info {
+            margin-top: 20px;
+            padding: 12px 28px;
+            background: rgba(255,255,255,0.15);
+            backdrop-filter: blur(10px);
+            border-radius: 50px;
+            display: inline-block;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        .tech-stack {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 20px;
+            justify-content: center;
+        }
+        .tech-item {
+            background: rgba(255,255,255,0.2);
+            padding: 6px 16px;
+            border-radius: 30px;
+            font-size: 13px;
+            font-weight: 500;
+        }
+        .url-box {
+            background: rgba(255,255,255,0.2);
+            padding: 10px 20px;
+            border-radius: 30px;
+            display: inline-block;
+            margin-top: 15px;
+            font-size: 14px;
+        }
+        .url-box a {
+            color: #00ff88;
+            text-decoration: none;
+        }
+        .url-box a:hover {
+            text-decoration: underline;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px 24px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 24px;
+            margin-bottom: 40px;
+        }
+        .stat-card {
+            background: white;
+            border-radius: 24px;
+            padding: 28px 20px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .stat-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+        }
+        .stat-card .number {
+            font-size: 48px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        .stat-card .label {
+            font-size: 14px;
+            color: #666;
+            margin-top: 12px;
+            font-weight: 500;
+        }
+        .badge-success {
+            display: inline-block;
+            background: #4CAF50;
+            color: white;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            margin-top: 8px;
+        }
+
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+        .chart-card {
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+        }
+        .chart-card:hover {
+            transform: translateY(-3px);
+        }
+        .chart-card h3 {
+            margin-bottom: 15px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #f0f0f0;
+            color: #1a1a2e;
+            font-weight: 600;
+        }
+        .chart-container {
+            height: 360px;
+            width: 100%;
+        }
+
+        .arch-card {
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+        .arch-card h3 {
+            margin-bottom: 15px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+        .arch-diagram {
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8ed 100%);
+            border-radius: 16px;
+            padding: 25px;
+            text-align: center;
+            overflow-x: auto;
+        }
+        .arch-diagram pre {
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            line-height: 1.6;
+            text-align: left;
+            display: inline-block;
+            background: #1a1a2e;
+            color: #00ff88;
+            padding: 20px;
+            border-radius: 12px;
+        }
+
+        .table-card {
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+            overflow-x: auto;
+        }
+        .table-card h3 {
+            margin-bottom: 15px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+        .badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            margin-left: 10px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+        }
+        th, td {
+            padding: 12px 10px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+        th {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+        }
+        tr:hover {
+            background: #f8f9ff;
+        }
+        .news-link {
+            color: #333;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+        .news-link:hover {
+            color: #667eea;
+            text-decoration: underline;
+        }
+        .hot-link {
+            color: #333;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        .hot-link:hover {
+            color: #ff6b6b;
+            text-decoration: underline;
+        }
+
+        .screenshots-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        .screenshot-card {
+            background: #f8f9fa;
+            border-radius: 16px;
+            padding: 15px;
+            text-align: center;
+            border: 1px solid #e0e0e0;
+            transition: all 0.3s;
+        }
+        .screenshot-card:hover {
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        .screenshot-card h4 {
+            color: #667eea;
+            margin-bottom: 12px;
+            font-size: 14px;
+        }
+        .screenshot-placeholder {
+            background: #e9ecef;
+            height: 160px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #999;
+            font-size: 12px;
+            border: 2px dashed #ccc;
+        }
+
+        .stats-card {
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+        .stats-card h3 {
+            margin-bottom: 15px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+        .stats-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 15px;
+        }
+        .stats-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 12px;
+            border-left: 4px solid #667eea;
+        }
+        .stats-item strong {
+            color: #667eea;
+        }
+
+        .footer {
+            background: linear-gradient(135deg, #0f0c29, #302b63);
+            color: white;
+            text-align: center;
+            padding: 30px;
+            margin-top: 40px;
+        }
+        .footer p {
+            opacity: 0.8;
+            font-size: 13px;
+        }
+
+        @media (max-width: 768px) {
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+            .header h1 {
+                font-size: 22px;
+            }
+            .stat-card .number {
+                font-size: 36px;
+            }
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>📊 社会热点新闻数据爬取与公有云实时监测系统</h1>
+        <p>云计算与大数据技术 · 课程大作业</p>
+        <div class="student-info">
+            👨‍🎓 郑凯荣 | 软件工程 | 23软件4班 | 7230264458 | 指导教师：周楠
+        </div>
+        <div class="url-box">
+            🌐 外网访问地址：<a href="#" id="external-url">http://47.110.97.109:8080/report</a>
+        </div>
+        <div class="tech-stack">
+            <span class="tech-item">🐍 Python</span>
+            <span class="tech-item">🕷️ Requests/BeautifulSoup</span>
+            <span class="tech-item">☁️ 阿里云RDS MySQL</span>
+            <span class="tech-item">📊 Pandas/Matplotlib</span>
+            <span class="tech-item">🎨 ECharts</span>
+            <span class="tech-item">🐳 Docker</span>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="number">1002</div>
+                <div class="label">📰 总数据量（条）</div>
+                <div class="badge-success">✅ ≥1000条 达标</div>
+            </div>
+            <div class="stat-card">
+                <div class="number">3</div>
+                <div class="label">🌐 新闻来源</div>
+            </div>
+            <div class="stat-card">
+                <div class="number">6</div>
+                <div class="label">📂 新闻分类</div>
+            </div>
+            <div class="stat-card">
+                <div class="number">100.0%</div>
+                <div class="label">⭐ 数据质量</div>
+            </div>
+        </div>
+
+        <div class="charts-grid">
+            <div class="chart-card">
+                <h3>📰 新闻来源分布 <span class="badge">饼图</span></h3>
+                <div id="source-chart" class="chart-container"></div>
+            </div>
+            <div class="chart-card">
+                <h3>📊 新闻分类分布 <span class="badge">柱状图</span></h3>
+                <div id="category-chart" class="chart-container"></div>
+            </div>
+        </div>
+
+        <div class="charts-grid">
+            <div class="chart-card">
+                <h3>🔥 热度TOP10新闻 <span class="badge">点击标题可查看原文</span></h3>
+                <div id="hot-chart" class="chart-container"></div>
+                <div style="margin-top: 10px; text-align: center; font-size: 12px; color: #999;">
+                    💡 提示：点击条形图上的新闻标题可跳转查看原文
+                </div>
+            </div>
+            <div class="chart-card">
+                <h3>📐 核心计算公式 <span class="badge">公式展示</span></h3>
+                <div style="padding:20px; text-align:center; background:linear-gradient(135deg,#f5f7fa,#e4e8ed); border-radius:16px; height:360px; display:flex; flex-direction:column; justify-content:center;">
+                    <div style="font-size:18px; font-weight:600; margin-bottom:25px;">📊 数据质量公式</div>
+                    <div style="font-size:22px; font-family:monospace; background:#1a1a2e; color:#00ff88; padding:15px; border-radius:12px; margin-bottom:20px;">
+                        Q = N_valid / N_total × 100% = 100.0%
+                    </div>
+                    <div style="font-size:16px; font-weight:600; margin:25px 0 15px;">🔥 热度综合评分公式</div>
+                    <div style="font-size:14px; font-family:monospace; background:#1a1a2e; color:#ff6b6b; padding:15px; border-radius:12px;">
+                        H = 0.6 × H_click + 0.4 × H_time<br>
+                        H_click = min(C/C_max, 1) &nbsp;&nbsp; H_time = max(1-D/7, 0)
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="arch-card">
+            <h3>🏗️ 系统架构图 <span class="badge">四层架构</span></h3>
+            <div class="arch-diagram">
+                <pre>
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                              可视化层                                        │
+│   来源分布饼图  │  分类分布柱状图  │  热度TOP10条形图  │  时间趋势折线图      │
+└─────────────────────────────────────────────────────────────────────────────┘
+                                      ↑
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                              数据分析层                                      │
+│   数据清洗  │  去重处理  │  来源统计  │  分类统计  │  热度排名  │  时间分析   │
+└─────────────────────────────────────────────────────────────────────────────┘
+                                      ↑
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                              数据存储层                                      │
+│                        阿里云RDS MySQL（云端数据库）                          │
+│               结构化数据：标题、来源、分类、时间、热度                         │
+│               非结构化数据：正文内容、摘要                                    │
+└─────────────────────────────────────────────────────────────────────────────┘
+                                      ↑
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                              数据采集层                                      │
+│   新浪新闻  │  网易新闻  │  腾讯新闻  │  百度新闻  │  人民网  │  央视新闻     │
+│                  Python + Requests + BeautifulSoup                         │
+└─────────────────────────────────────────────────────────────────────────────┘
+                </pre>
+            </div>
+        </div>
+
+        <div class="table-card">
+            <h3>📋 数据样本（前100条） <span class="badge">点击标题可查看原文</span></h3>
+            <div style="max-height: 500px; overflow-y: auto;">
+                <table id="sample-table">
+                    <thead>
+                        <tr><th>序号</th><th>来源</th><th>标题</th><th>分类</th><th>发布时间</th><th>热度</th></tr>
+                    </thead>
+                    <tbody id="sample-tbody"></tbody>
+                </table>
+            </div>
+            <div style="margin-top: 15px; text-align: right; font-size: 12px; color: #999;">
+                共显示 100 条数据（前100条）
+            </div>
+        </div>
+
+        <div class="arch-card">
+            <h3>☁️ 云计算部署（阿里云RDS） <span class="badge">云数据库</span></h3>
+            <div class="screenshots-grid">
+                <div class="screenshot-card"><h4>📸 图1 RDS实例列表</h4><div class="screenshot-placeholder">[请插入阿里云RDS控制台实例列表截图]</div></div>
+                <div class="screenshot-card"><h4>📸 图2 数据库管理</h4><div class="screenshot-placeholder">[请插入yundajisuan数据库截图]</div></div>
+                <div class="screenshot-card"><h4>📸 图3 账号管理</h4><div class="screenshot-placeholder">[请插入spider_user账号截图]</div></div>
+                <div class="screenshot-card"><h4>📸 图4 白名单设置</h4><div class="screenshot-placeholder">[请插入0.0.0.0/0白名单截图]</div></div>
+                <div class="screenshot-card"><h4>📸 图5 数据量查询</h4><div class="screenshot-placeholder">[请插入SELECT COUNT(*) FROM news; 显示1002条截图]</div></div>
+            </div>
+            <div style="margin-top: 15px; background: #e8f4fd; padding: 12px; border-radius: 10px;">
+                <strong>🔧 云数据库配置信息</strong><br>
+                实例类型：RDS MySQL 8.0 | 规格：2核4GB | 存储：50GB<br>
+                外网地址：47.110.97.109:3306 | 数据库：yundajisuan | 账号：spider_user
+            </div>
+        </div>
+
+        <div class="stats-card">
+            <h3>📊 统计说明</h3>
+            <div class="stats-list">
+                <div class="stats-item"><strong>1. 来源分布</strong><br>新浪新闻:1000条、网易新闻:1条、人民网:1条</div>
+                <div class="stats-item"><strong>2. 分类分布</strong><br>财经新闻:581条、体育新闻:221条、科技新闻:172条、国际新闻:25条、国内新闻:2条、时政新闻:1条</div>
+                <div class="stats-item"><strong>3. 热度TOP3</strong><br>[新浪彩票]足彩26082期盈亏指数：布兰谨慎防平<br>国家育儿补贴制度实施方案发布<br>精选大乐透推荐：李文文、王可各擒头奖揽1084万！</div>
+                <div class="stats-item"><strong>4. 时间范围</strong><br>2026-05-29 至 2026-06-01</div>
+                <div class="stats-item"><strong>5. 数据质量</strong><br>Q = 100.0% ≥ 95% ✅</div>
+                <div class="stats-item"><strong>6. 云数据库配置</strong><br>阿里云RDS MySQL 8.0<br>外网地址: 47.110.97.109:3306</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>江苏师范大学科文学院 · 软件工程 · 云计算与大数据技术课程大作业</p>
+        <p>数据采集时间：2026-05-29 至 2026-06-01 | 共采集新闻 1002 条 | 数据质量 100.0%</p>
+        <p>🌐 外网访问地址：<a href="#" id="footer-url" style="color:#00ff88;">http://47.110.97.109:8080/report</a></p>
+    </div>
+
+    <script>
+        // 获取当前页面的URL作为外网访问地址
+        var currentUrl = window.location.href;
+        var externalUrl = document.getElementById('external-url');
+        var footerUrl = document.getElementById('footer-url');
+        if (externalUrl) externalUrl.href = currentUrl;
+        if (footerUrl) footerUrl.href = currentUrl;
+
+        // 来源分布数据
+        var sourceData = {"新浪新闻": 1000, "网易新闻": 1, "人民网": 1};
+        var sourceChart = echarts.init(document.getElementById('source-chart'));
+        sourceChart.setOption({
+            tooltip: { trigger: 'item', formatter: '{b}: {d}% ({c}条)' },
+            legend: { orient: 'vertical', left: 'left', textStyle: { fontSize: 12 } },
+            series: [{
+                type: 'pie', radius: ['40%', '70%'],
+                data: Object.entries(sourceData).map(([name, value]) => ({ name, value })),
+                label: { show: true, formatter: '{b}: {d}%' },
+                emphasis: { scale: true }
+            }]
+        });
+
+        // 分类分布数据
+        var categoryData = {"财经新闻": 581, "体育新闻": 221, "科技新闻": 172, "国际新闻": 25, "国内新闻": 2, "时政新闻": 1};
+        var categoryChart = echarts.init(document.getElementById('category-chart'));
+        categoryChart.setOption({
+            tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
+            grid: { left: '10%', right: '5%', containLabel: true },
+            xAxis: { type: 'category', data: Object.keys(categoryData), axisLabel: { rotate: 45, fontSize: 11 } },
+            yAxis: { type: 'value', name: '数量' },
+            series: [{
+                type: 'bar', data: Object.values(categoryData),
+                itemStyle: { color: '#667eea', borderRadius: [5,5,0,0] },
+                label: { show: true, position: 'top' }
+            }]
+        });
+
+        // 热度TOP10数据（带URL链接）
+        var hotData = [{"name": "[新浪彩票]足彩26082期盈亏指数：布兰谨慎防平", "source": "新浪新闻", "value": 99872, "url": "https://sports.sina.com.cn/l/2026-05-29/doc-inhzpfxz7750496.shtml"}, {"name": "国家育儿补贴制度实施方案发布", "source": "新浪新闻", "value": 99841, "url": "https://finance.sina.com.cn/zt_d/yebtzdssfa/"}, {"name": "精选大乐透推荐：李文文、王可各擒头奖揽1084万！", "source": "新浪新闻", "value": 99796, "url": "https://sports.sina.com.cn/l/2026-05-27/doc-inhzhxzt1765603.shtml"}, {"name": "男子胆拖票揽大乐透1205万 接触体彩二十余年", "source": "新浪新闻", "value": 99705, "url": "https://sports.sina.com.cn/l/2026-05-29/doc-inhzpwvp9519744.shtml"}, {"name": "海外资金加速布局中国硬科技资产", "source": "新浪新闻", "value": 99640, "url": "https://finance.sina.com.cn/roll/2026-05-31/doc-inhzuris4844309.shtml"}, {"name": "身背“警示函”，招商银行拟聘“瑕疵”董事", "source": "新浪新闻", "value": 99637, "url": "https://k.sina.com.cn/article_7412178247_1b9ccdd4700101vf70.html"}, {"name": "永辉超市前CEO李松峰回应“出局”", "source": "新浪新闻", "value": 99620, "url": "https://finance.sina.com.cn/zt_d/subject-1742272390/"}, {"name": "华为路由X3 Pro体验评测", "source": "新浪新闻", "value": 99527, "url": "https://zhongce.sina.com.cn/article/view/194217/"}, {"name": "竞彩大势：巴西大胜巴拿马 瑞士主场完胜", "source": "新浪新闻", "value": 99510, "url": "https://sports.sina.com.cn/l/2026-05-31/doc-inhztuea5156987.shtml"}, {"name": "竞彩大势：瓦勒伦加取胜赢球可期 博德闪耀客胜", "source": "新浪新闻", "value": 99507, "url": "https://sports.sina.com.cn/l/2026-05-29/doc-inhzpfxz7762141.shtml"}];
+        var hotChart = echarts.init(document.getElementById('hot-chart'));
+        // 自定义点击事件
+        hotChart.off('click');
+        hotChart.on('click', function(params) {
+            if (params.componentType === 'yAxis' && params.value) {
+                var clickedName = params.value;
+                var found = hotData.find(item => item.name === clickedName);
+                if (found && found.url && found.url !== '#') {
+                    window.open(found.url, '_blank');
+                }
+            } else if (params.componentType === 'series' && params.data) {
+                var index = params.dataIndex;
+                var reversedIndex = hotData.length - 1 - index;
+                if (hotData[reversedIndex] && hotData[reversedIndex].url && hotData[reversedIndex].url !== '#') {
+                    window.open(hotData[reversedIndex].url, '_blank');
+                }
+            }
+        });
+        hotChart.setOption({
+            tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' }, formatter: function(params) {
+                if (params && params[0]) {
+                    return params[0].name + '<br/>热度: ' + params[0].value + '<br/>💡 点击查看原文';
+                }
+                return '';
+            } },
+            grid: { left: '25%', right: '5%' },
+            yAxis: { type: 'category', data: hotData.map(d => d.name).reverse(), axisLabel: { fontSize: 11, fontWeight: 500 } },
+            xAxis: { type: 'value', name: '热度' },
+            series: [{
+                type: 'bar', data: hotData.map(d => d.value).reverse(),
+                itemStyle: { color: '#ff6b6b', borderRadius: [0,5,5,0], cursor: 'pointer' },
+                label: { show: true, position: 'right' },
+                cursor: 'pointer'
+            }]
+        });
+
+        // 数据样本表格（前100条，带URL链接）
+        var sampleData = [{"id": 1, "source": "新浪新闻", "title": "新浪新闻App", "category": "国内新闻", "pub_date": "2026-05-29", "click_count": 31794, "url": "javascript:void(0);"}, {"id": 2, "source": "新浪新闻", "title": "伊朗：要求满足前不会举行任何谈判", "category": "国际新闻", "pub_date": "2026-05-30", "click_count": 5166, "url": "https://news.sina.com.cn/w/2026-06-01/doc-inhzxmef5053434.shtml"}, {"id": 3, "source": "新浪新闻", "title": "伊朗：计划彻底封锁霍尔木兹海峡", "category": "国际新闻", "pub_date": "2026-05-31", "click_count": 32485, "url": "https://news.sina.com.cn/w/2026-06-01/doc-inhzxmef5046978.shtml"}, {"id": 4, "source": "新浪新闻", "title": "伊媒：伊朗暂停通过中间人同美国对话", "category": "国际新闻", "pub_date": "2026-05-31", "click_count": 28133, "url": "https://zx.sina.cn/push/2026-06-01/detail-inhzxmek3784135.d.html"}, {"id": 5, "source": "新浪新闻", "title": "俄罗斯批法国：海盗行径！", "category": "国际新闻", "pub_date": "2026-05-29", "click_count": 95830, "url": "https://news.sina.com.cn/w/2026-06-01/doc-inhzxewn3895783.shtml"}, {"id": 6, "source": "新浪新闻", "title": "被美国坑了，澳还要强撑：不是一手买不起，而是二手更有“性价比”", "category": "国际新闻", "pub_date": "2026-05-30", "click_count": 22911, "url": "https://news.sina.com.cn/w/2026-06-01/doc-inhzxewn3856662.shtml"}, {"id": 7, "source": "新浪新闻", "title": "伊朗称过去24小时有15艘船只经协调通过霍尔木兹海峡", "category": "国际新闻", "pub_date": "2026-05-31", "click_count": 90802, "url": "https://news.sina.com.cn/w/2026-06-01/doc-inhzxewi5101916.shtml"}, {"id": 8, "source": "新浪新闻", "title": "英伟达发布首款PC超级芯片！黄仁勋称AI没有减少岗位，算力即利润", "category": "国际新闻", "pub_date": "2026-05-31", "click_count": 74226, "url": "https://news.sina.com.cn/w/2026-06-01/doc-inhzwyqq3949493.shtml"}, {"id": 9, "source": "新浪新闻", "title": "伊朗打击美军基地 导弹发射画面曝光", "category": "国际新闻", "pub_date": "2026-05-29", "click_count": 86686, "url": "https://news.sina.com.cn/w/2026-06-01/doc-inhzwyqq3948487.shtml"}, {"id": 10, "source": "新浪新闻", "title": "伊朗情报机构宣布捣毁一恐怖分子团伙", "category": "国际新闻", "pub_date": "2026-05-31", "click_count": 53978, "url": "https://news.sina.com.cn/w/2026-06-01/doc-inhzwyqm5203275.shtml"}, {"id": 11, "source": "新浪新闻", "title": "韩国知名电竞选手Faker的奶奶遭网络死亡威胁，威胁者预告地铁站行凶，警方介入", "category": "国际新闻", "pub_date": "2026-06-01", "click_count": 61524, "url": "https://news.sina.com.cn/w/2026-06-01/doc-inhzwyqi8414855.shtml"}, {"id": 12, "source": "新浪新闻", "title": "未来属于亚洲城市？BCG报告：中国已悄然领跑", "category": "国际新闻", "pub_date": "2026-05-31", "click_count": 27243, "url": "https://news.sina.com.cn/w/2026-06-01/doc-inhzwyqr2419254.shtml"}, {"id": 13, "source": "新浪新闻", "title": "剑指古巴？尼米兹号航母访问牙买加", "category": "国际新闻", "pub_date": "2026-05-30", "click_count": 12277, "url": "https://news.sina.com.cn/w/2026-06-01/doc-inhzwyqr2408326.shtml"}, {"id": 14, "source": "新浪新闻", "title": "科威特又遭袭 伊朗美国各执一词", "category": "国际新闻", "pub_date": "2026-06-01", "click_count": 2109, "url": "https://news.sina.com.cn/w/2026-06-01/doc-inhzwyqm5170794.shtml"}, {"id": 15, "source": "新浪新闻", "title": "日本福岛第一核电站2号机组剩余乏燃料取出工作拟于明日启动", "category": "国际新闻", "pub_date": "2026-05-29", "click_count": 34015, "url": "https://news.sina.com.cn/w/2026-06-01/doc-inhzwyqr2397175.shtml"}, {"id": 16, "source": "新浪新闻", "title": "伊朗外交部发言人：与美国谈判的一大难题在于对方立场频繁变化", "category": "国际新闻", "pub_date": "2026-05-29", "click_count": 21100, "url": "https://news.sina.com.cn/w/2026-06-01/doc-inhzwuhp5275045.shtml"}, {"id": 17, "source": "新浪新闻", "title": "物理AI爆发临近？英伟达发布“全能”世界模型 机器人、自动驾驶有望获强力助推", "category": "国际新闻", "pub_date": "2026-06-01", "click_count": 75010, "url": "https://news.sina.com.cn/w/2026-06-01/doc-inhzwuhp5261730.shtml"}, {"id": 18, "source": "新浪新闻", "title": "日菲领导人晚宴唱K引群嘲，现场视频曝光，日本网友：高市早苗疑似醉酒，表情夸张、举止怪异，这简直是“日本国耻”", "category": "国际新闻", "pub_date": "2026-06-01", "click_count": 96572, "url": "https://news.sina.com.cn/w/2026-06-01/doc-inhzwyqr2383005.shtml"}, {"id": 19, "source": "新浪新闻", "title": "软银集团市值跃居日本上市公司首位", "category": "国际新闻", "pub_date": "2026-05-29", "click_count": 54322, "url": "https://news.sina.com.cn/w/2026-06-01/doc-inhzwuht2479700.shtml"}, {"id": 20, "source": "新浪新闻", "title": "外媒：法国一美术馆展出“香蕉艺术品”被盗，馆方提起刑事诉讼", "category": "国际新闻", "pub_date": "2026-05-31", "click_count": 29722, "url": "https://news.sina.com.cn/w/2026-06-01/doc-inhzwuhp5234869.shtml"}, {"id": 21, "source": "新浪新闻", "title": "屋顶漏水、污水四溢！世界杯倒计时，墨西哥百年机场仍像“没收尾的大工地”", "category": "国际新闻", "pub_date": "2026-05-29", "click_count": 67131, "url": "https://news.sina.com.cn/w/2026-06-01/doc-inhzwuhp5234126.shtml"}, {"id": 22, "source": "新浪新闻", "title": "挪威交付导弹前毁约，美国撇清关系，马防长怒批：还有没有国际法", "category": "国际新闻", "pub_date": "2026-05-30", "click_count": 50211, "url": "https://news.sina.com.cn/w/2026-06-01/doc-inhzwuht2469096.shtml"}, {"id": 23, "source": "新浪新闻", "title": "韩国SK海力士一园区气体室发生火灾 有毒气体泄漏", "category": "国际新闻", "pub_date": "2026-06-01", "click_count": 73376, "url": "https://news.sina.com.cn/w/2026-06-01/doc-inhzwuht2465196.shtml"}, {"id": 24, "source": "新浪新闻", "title": "印度裔在美国政坛崛起，影响有多大？", "category": "国际新闻", "pub_date": "2026-05-29", "click_count": 78764, "url": "https://news.sina.com.cn/w/2024-08-30/doc-incmkivu2546694.shtml"}, {"id": 25, "source": "新浪新闻", "title": "外媒：马克龙称不知道“电报”创始人杜罗夫要来法国", "category": "国际新闻", "pub_date": "2026-06-01", "click_count": 62092, "url": "https://news.sina.com.cn/o/2024-08-30/doc-incmkqct9239259.shtml"}, {"id": 26, "source": "新浪新闻", "title": "新闻中心意见反馈留言板", "category": "国际新闻", "pub_date": "2026-05-31", "click_count": 39913, "url": "http://comment4.news.sina.com.cn/comment/skin/feedback.html"}, {"id": 27, "source": "新浪新闻", "title": "华为路由X3 Pro体验评测", "category": "科技新闻", "pub_date": "2026-06-01", "click_count": 99527, "url": "https://zhongce.sina.com.cn/article/view/194217/"}, {"id": 28, "source": "新浪新闻", "title": "Osmo Mobile 8：一个人就是一支专业团队！", "category": "科技新闻", "pub_date": "2026-06-01", "click_count": 28133, "url": "https://zhongce.sina.com.cn/report/view/11578/"}, {"id": 29, "source": "新浪新闻", "title": "希影RS 80 Ultra投影仪|打造专属的私人影院", "category": "科技新闻", "pub_date": "2026-05-30", "click_count": 92232, "url": "https://zhongce.sina.com.cn/report/view/11572/"}, {"id": 30, "source": "新浪新闻", "title": "后厂村10号院", "category": "科技新闻", "pub_date": "2026-05-30", "click_count": 81652, "url": "javascript:;"}, {"id": 31, "source": "新浪新闻", "title": "苹果秋季发布会", "category": "科技新闻", "pub_date": "2026-05-30", "click_count": 4097, "url": "https://tech.sina.com.cn/zt_d/apple_202409/"}, {"id": 32, "source": "新浪新闻", "title": "2025 Google 开发者大会", "category": "科技新闻", "pub_date": "2026-05-29", "click_count": 74125, "url": "https://tech.sina.com.cn/zt_d/2025ioconnectchina/"}, {"id": 33, "source": "新浪新闻", "title": "2024世界电信和信息社会日大会", "category": "科技新闻", "pub_date": "2026-06-01", "click_count": 49679, "url": "https://rl.cj.sina.com.cn/imeeting/hyt/detail/36491"}, {"id": 34, "source": "新浪新闻", "title": "被AI吞没的人：数据劳工的创伤与沉默", "category": "科技新闻", "pub_date": "2026-05-30", "click_count": 8405, "url": "https://finance.sina.com.cn/jjxw/2026-06-01/doc-inhzwckt8527377.shtml"}, {"id": 35, "source": "新浪新闻", "title": "经济日报：华为韬定律为何出道即顶流", "category": "科技新闻", "pub_date": "2026-06-01", "click_count": 77873, "url": "https://finance.sina.com.cn/jjxw/2026-06-01/doc-inhzvxax5428092.shtml"}, {"id": 36, "source": "新浪新闻", "title": "“抽卡”不灵了 AI漫剧靠什么活下去？", "category": "科技新闻", "pub_date": "2026-05-29", "click_count": 62354, "url": "https://finance.sina.com.cn/jjxw/2026-06-01/doc-inhzwckt8526052.shtml"}, {"id": 37, "source": "新浪新闻", "title": "新能源汽车不能一味比拼“大”与“重”", "category": "科技新闻", "pub_date": "2026-05-29", "click_count": 28088, "url": "https://finance.sina.com.cn/jjxw/2026-06-01/doc-inhzvxau5590831.shtml"}, {"id": 38, "source": "新浪新闻", "title": "“你的帖子还在”！天涯社区今天回归", "category": "科技新闻", "pub_date": "2026-05-31", "click_count": 63937, "url": "https://finance.sina.com.cn/wm/2026-06-01/doc-inhzwcky4123105.shtml"}, {"id": 39, "source": "新浪新闻", "title": "天舟十号带上天的这组试验，将解决三大“太空烦恼”", "category": "科技新闻", "pub_date": "2026-05-30", "click_count": 84883, "url": "https://finance.sina.com.cn/roll/2026-06-01/doc-inhzvxav8627746.shtml"}, {"id": 40, "source": "新浪新闻", "title": "奥迪虚假宣传，保价期内官方降价不予补偿", "category": "科技新闻", "pub_date": "2026-05-30", "click_count": 17664, "url": "https://tousu.sina.com.cn/complaint/view/17398035859/?sld=516af6abbd12e5bf86d72fa2d219f66a"}, {"id": 41, "source": "新浪新闻", "title": "OpenAI遭美佛州总检察长起诉 理由是“AI产生危害”", "category": "科技新闻", "pub_date": "2026-05-29", "click_count": 98591, "url": "https://finance.sina.com.cn/stock/usstock/c/2026-06-01/doc-inhzxmef5079842.shtml"}, {"id": 42, "source": "新浪新闻", "title": "微软将在Build开发者大会发布全新AI模型与Windows升级内容", "category": "科技新闻", "pub_date": "2026-05-30", "click_count": 20545, "url": "https://finance.sina.com.cn/stock/usstock/c/2026-06-01/doc-inhzxmek3814299.shtml"}, {"id": 43, "source": "新浪新闻", "title": "追觅回应Pre-IPO融资估值700亿：与资本市场保持开放沟通，不评论市场传闻", "category": "科技新闻", "pub_date": "2026-05-31", "click_count": 9709, "url": "https://finance.sina.com.cn/roll/2026-06-01/doc-inhzxmem2277648.shtml"}, {"id": 44, "source": "新浪新闻", "title": "欧盟拟提出云计算服务标准 恐将美科技巨头排除在关键项目之外", "category": "科技新闻", "pub_date": "2026-05-29", "click_count": 8704, "url": "https://finance.sina.com.cn/stock/usstock/c/2026-06-01/doc-inhzxmem2254449.shtml"}, {"id": 45, "source": "新浪新闻", "title": "哈萨克斯坦官员：该国最大油田发生事故后，原油产量已恢复正常", "category": "科技新闻", "pub_date": "2026-06-01", "click_count": 34518, "url": "https://finance.sina.com.cn/stock/usstock/c/2026-06-01/doc-inhzxmem2249815.shtml"}, {"id": 46, "source": "新浪新闻", "title": "媒体大鳄巴里·迪勒正筹划出价收购博彩业巨头美高梅度假村 估值超180亿美元", "category": "科技新闻", "pub_date": "2026-05-29", "click_count": 20453, "url": "https://finance.sina.com.cn/stock/usstock/c/2026-06-01/doc-inhzxmem2249178.shtml"}, {"id": 47, "source": "新浪新闻", "title": "美团高管解读Q1财报：仅依靠补贴推动的订单增长是不可持续的", "category": "科技新闻", "pub_date": "2026-05-29", "click_count": 61285, "url": "https://finance.sina.com.cn/tech/2026-06-01/doc-inhzxmem2244377.shtml"}, {"id": 48, "source": "新浪新闻", "title": "Quantinuum寻求通过IPO筹集至多14.6亿美元", "category": "科技新闻", "pub_date": "2026-05-31", "click_count": 4635, "url": "https://finance.sina.com.cn/stock/usstock/c/2026-06-01/doc-inhzxmec8256713.shtml"}, {"id": 49, "source": "新浪新闻", "title": "打破“只买不卖”惯例 Strategy出售所持部分比特币", "category": "科技新闻", "pub_date": "2026-05-31", "click_count": 97918, "url": "https://finance.sina.com.cn/stock/usstock/c/2026-06-01/doc-inhzxmek3775835.shtml"}, {"id": 50, "source": "新浪新闻", "title": "股市近期走势，与 2000 年互联网泡沫顶峰阶段惊人相似", "category": "科技新闻", "pub_date": "2026-05-31", "click_count": 17015, "url": "https://finance.sina.com.cn/stock/usstock/c/2026-06-01/doc-inhzxewf8383911.shtml"}, {"id": 51, "source": "新浪新闻", "title": "美团CFO陈少晖：到店业务不单纯靠流量 利润率短期平稳长期向好", "category": "科技新闻", "pub_date": "2026-05-30", "click_count": 47984, "url": "https://finance.sina.com.cn/tob/2026-06-01/doc-inhzxewf8382082.shtml"}, {"id": 52, "source": "新浪新闻", "title": "棉花期货走高 受供应缺口扩大预期叠加油价上涨影响", "category": "科技新闻", "pub_date": "2026-05-31", "click_count": 78891, "url": "https://finance.sina.com.cn/stock/usstock/c/2026-06-01/doc-inhzxewi5155005.shtml"}, {"id": 53, "source": "新浪新闻", "title": "法国吸引外资达 1080 亿美元，其中半数流向软银旗下数据中心项目", "category": "科技新闻", "pub_date": "2026-05-30", "click_count": 79884, "url": "https://finance.sina.com.cn/stock/usstock/c/2026-06-01/doc-inhzxewp2364604.shtml"}, {"id": 54, "source": "新浪新闻", "title": "王兴：预期第二季度外卖UE会明显好于第一季度", "category": "科技新闻", "pub_date": "2026-05-29", "click_count": 18582, "url": "https://finance.sina.com.cn/wm/2026-06-01/doc-inhzxewn3896248.shtml"}, {"id": 55, "source": "新浪新闻", "title": "王兴：美团AI助手“小美”与腾讯元宝的合作将于近期上线", "category": "科技新闻", "pub_date": "2026-06-01", "click_count": 58925, "url": "https://finance.sina.com.cn/wm/2026-06-01/doc-inhzxewn3895495.shtml"}, {"id": 56, "source": "新浪新闻", "title": "法国巴黎银行：亚洲科技股超级周期远未见顶", "category": "科技新闻", "pub_date": "2026-05-29", "click_count": 42959, "url": "https://finance.sina.com.cn/stock/usstock/c/2026-06-01/doc-inhzxewi5150240.shtml"}, {"id": 57, "source": "新浪新闻", "title": "伊朗冲突带来的航运扰动持续，捷蓝航空预警燃油成本上涨", "category": "科技新闻", "pub_date": "2026-05-30", "click_count": 59424, "url": "https://finance.sina.com.cn/stock/usstock/c/2026-06-01/doc-inhzxewp2359979.shtml"}, {"id": 58, "source": "新浪新闻", "title": "IBM股价大涨 此前一段特朗普提及该股票的旧视频在网上流传", "category": "科技新闻", "pub_date": "2026-06-01", "click_count": 1587, "url": "https://finance.sina.com.cn/stock/usstock/c/2026-06-01/doc-inhzxewf8367936.shtml"}, {"id": 59, "source": "新浪新闻", "title": "王兴：外卖行业竞争趋于理性，长期UE将回到合理水平", "category": "科技新闻", "pub_date": "2026-05-31", "click_count": 47194, "url": "https://finance.sina.com.cn/wm/2026-06-01/doc-inhzxewp2355404.shtml"}, {"id": 60, "source": "新浪新闻", "title": "沈南鹏向母校上海交大捐资3亿元，设立“红杉书院建设基金”", "category": "科技新闻", "pub_date": "2026-05-31", "click_count": 41942, "url": "https://finance.sina.com.cn/wm/2026-06-01/doc-inhzxewn3887074.shtml"}, {"id": 61, "source": "新浪新闻", "title": "曝追觅开放直接融资窗口，或最高融资70亿元", "category": "科技新闻", "pub_date": "2026-06-01", "click_count": 82109, "url": "https://finance.sina.com.cn/wm/2026-06-01/doc-inhzxewf8360584.shtml"}, {"id": 62, "source": "新浪新闻", "title": "多地抢滩太空算力，全球万亿美元级市场待挖掘", "category": "科技新闻", "pub_date": "2026-06-01", "click_count": 7837, "url": "https://finance.sina.com.cn/roll/2026-06-01/doc-inhzxewp2349270.shtml"}, {"id": 63, "source": "新浪新闻", "title": "伊朗战争引发的通胀冲击料将不及 2022 年飙升幅度", "category": "科技新闻", "pub_date": "2026-05-31", "click_count": 59370, "url": "https://finance.sina.com.cn/stock/usstock/c/2026-06-01/doc-inhzxewn3877664.shtml"}, {"id": 64, "source": "新浪新闻", "title": "英伟达新芯片提振股价盘前上涨 英特尔和AMD下跌", "category": "科技新闻", "pub_date": "2026-05-31", "click_count": 6397, "url": "https://finance.sina.com.cn/stock/usstock/c/2026-06-01/doc-inhzxewn3874874.shtml"}, {"id": 65, "source": "新浪新闻", "title": "猛士M817开启预售：预售价37万元起，纯电续航301km、综合续航1450km", "category": "科技新闻", "pub_date": "2026-05-31", "click_count": 28227, "url": "https://finance.sina.com.cn/tob/2026-06-01/doc-inhzxewp2339919.shtml"}, {"id": 66, "source": "新浪新闻", "title": "首飞成功！商业航天，大消息", "category": "科技新闻", "pub_date": "2026-05-29", "click_count": 95455, "url": "https://finance.sina.com.cn/wm/2026-06-01/doc-inhzxewn3873672.shtml"}, {"id": 67, "source": "新浪新闻", "title": "对话思格新能源CEO许映童：自研专属Agent与通用问答式AI最大区别是个性化智能服务", "category": "科技新闻", "pub_date": "2026-05-29", "click_count": 41868, "url": "https://finance.sina.com.cn/wm/2026-06-01/doc-inhzxewi5114508.shtml"}, {"id": 68, "source": "新浪新闻", "title": "莲花跑车CEO：有车企把跑车做到两吨，说明它对跑车没有理解，只要超过1.8吨就是菜车", "category": "科技新闻", "pub_date": "2026-05-29", "click_count": 30204, "url": "https://finance.sina.com.cn/wm/2026-06-01/doc-inhzxewi5112771.shtml"}, {"id": 69, "source": "新浪新闻", "title": "Luna相机延迟到6月上市 刘靖康发文道歉：我临时加了需求", "category": "科技新闻", "pub_date": "2026-05-30", "click_count": 2292, "url": "https://finance.sina.com.cn/tech/it/2026-06-01/doc-inhzwyqm5215333.shtml"}, {"id": 70, "source": "新浪新闻", "title": "AI驱动科技巨头海外发债潮 重塑全球公司债市场格局", "category": "科技新闻", "pub_date": "2026-05-30", "click_count": 75923, "url": "https://finance.sina.com.cn/stock/usstock/c/2026-06-01/doc-inhzwyqm5214343.shtml"}, {"id": 71, "source": "新浪新闻", "title": "传赛豆科技旗下首款车型今年推出，相关人士：以官方发布信息为准，将专注AI汽车相关方向", "category": "科技新闻", "pub_date": "2026-05-30", "click_count": 42258, "url": "https://finance.sina.com.cn/tob/2026-06-01/doc-inhzwyqq3964006.shtml"}, {"id": 72, "source": "新浪新闻", "title": "贝恩调查：AI降本效果不理想 四成受访公司成本降幅未超10%", "category": "科技新闻", "pub_date": "2026-05-31", "click_count": 23147, "url": "https://finance.sina.com.cn/stock/usstock/c/2026-06-01/doc-inhzwyqm5196768.shtml"}, {"id": 73, "source": "新浪新闻", "title": "高盛策略师：AI乐观情绪推动市场大举增配风险资产", "category": "科技新闻", "pub_date": "2026-05-31", "click_count": 82222, "url": "https://finance.sina.com.cn/stock/usstock/c/2026-06-01/doc-inhzwyqi8417809.shtml"}, {"id": 74, "source": "新浪新闻", "title": "宇树科技科创板IPO顺利过会，符合上市发行条件", "category": "科技新闻", "pub_date": "2026-05-29", "click_count": 3989, "url": "https://finance.sina.com.cn/tob/2026-06-01/doc-inhzwyqm5189350.shtml"}, {"id": 75, "source": "新浪新闻", "title": "鸿海和法国公司Bull将合作生产AI和云基础设施", "category": "科技新闻", "pub_date": "2026-05-31", "click_count": 2973, "url": "https://finance.sina.com.cn/stock/usstock/c/2026-06-01/doc-inhzwyqm5188901.shtml"}, {"id": 76, "source": "新浪新闻", "title": "考拉悠然无界世界模型登顶 WorldArena 最终榜单", "category": "科技新闻", "pub_date": "2026-05-30", "click_count": 33499, "url": "https://finance.sina.com.cn/wm/2026-06-01/doc-inhzwyqq3937248.shtml"}, {"id": 77, "source": "新浪新闻", "title": "美团：2026年一季度营收910亿元 经营亏损收窄至65亿元", "category": "科技新闻", "pub_date": "2026-05-29", "click_count": 85227, "url": "https://finance.sina.com.cn/wm/2026-06-01/doc-inhzwyqr2391703.shtml"}, {"id": 78, "source": "新浪新闻", "title": "新款Windows PC芯片提振英伟达与Arm股价盘前上涨 高通和AMD走低", "category": "科技新闻", "pub_date": "2026-05-30", "click_count": 55760, "url": "https://finance.sina.com.cn/stock/usstock/c/2026-06-01/doc-inhzwyqi8387677.shtml"}, {"id": 79, "source": "新浪新闻", "title": "比利时通讯社：法国巴黎富通银行将借助AI在三年内缩减1000个工作岗位", "category": "科技新闻", "pub_date": "2026-06-01", "click_count": 17586, "url": "https://finance.sina.com.cn/stock/usstock/c/2026-06-01/doc-inhzwyqi8378044.shtml"}, {"id": 80, "source": "新浪新闻", "title": "鎏光美学，智感随行，华为FreeClip 2 典藏版 耳夹耳机正式发布", "category": "科技新闻", "pub_date": "2026-05-30", "click_count": 26006, "url": "https://finance.sina.com.cn/tech/mobile/n/n/2026-06-01/doc-inhzwyqr2378397.shtml"}, {"id": 81, "source": "新浪新闻", "title": "土耳其第一季度经济增长 2.5%，增速进一步放缓", "category": "科技新闻", "pub_date": "2026-05-30", "click_count": 32460, "url": "https://finance.sina.com.cn/stock/usstock/c/2026-06-01/doc-inhzwyqr2377062.shtml"}, {"id": 82, "source": "新浪新闻", "title": "牧原股份与阿里云达成战略合作，将共建养猪大模型", "category": "科技新闻", "pub_date": "2026-05-30", "click_count": 6446, "url": "https://finance.sina.com.cn/wm/2026-06-01/doc-inhzwuhs4038759.shtml"}, {"id": 83, "source": "新浪新闻", "title": "天涯社区回应“网页打不开”：访问人数剧增有点卡顿，会尽快完善", "category": "科技新闻", "pub_date": "2026-06-01", "click_count": 95810, "url": "https://finance.sina.com.cn/wm/2026-06-01/doc-inhzwuhs4030014.shtml"}, {"id": 84, "source": "新浪新闻", "title": "机械革命蛟龙16Pro 2026款RTX50笔记本评测", "category": "科技新闻", "pub_date": "2026-05-29", "click_count": 7285, "url": "http://zhongce.sina.com.cn/article/view/198019"}, {"id": 85, "source": "新浪新闻", "title": "成功率99.25%，越疆空弈DobotWAM具身大模型发布，LIBERO排名第一", "category": "科技新闻", "pub_date": "2026-05-31", "click_count": 97391, "url": "https://finance.sina.com.cn/wm/2026-06-01/doc-inhzwuhp5257116.shtml"}, {"id": 86, "source": "新浪新闻", "title": "伊朗称与阿曼在霍尔木兹海峡管控方面取得“良好进展”", "category": "科技新闻", "pub_date": "2026-05-30", "click_count": 93777, "url": "https://finance.sina.com.cn/stock/usstock/c/2026-06-01/doc-inhzwuhm8470372.shtml"}, {"id": 87, "source": "新浪新闻", "title": "联想集团将首批推出搭载英伟达RTX Spark的AI PC", "category": "科技新闻", "pub_date": "2026-05-31", "click_count": 64738, "url": "https://finance.sina.com.cn/wm/2026-06-01/doc-inhzwuhp5246102.shtml"}, {"id": 88, "source": "新浪新闻", "title": "花旗上调铜价预期，主因供应紧张及美国关税政策存不确定性", "category": "科技新闻", "pub_date": "2026-05-30", "click_count": 31502, "url": "https://finance.sina.com.cn/stock/usstock/c/2026-06-01/doc-inhzwuht2478835.shtml"}, {"id": 89, "source": "新浪新闻", "title": "两大芯片巨头互攻：英伟达杀入PC市场，英特尔将推更便宜的AI芯片", "category": "科技新闻", "pub_date": "2026-06-01", "click_count": 15823, "url": "https://finance.sina.com.cn/jjxw/2026-06-01/doc-inhzwuht2476869.shtml"}, {"id": 90, "source": "新浪新闻", "title": "印度取消为期五个月的棉花进口关税，助力纺织品出口商", "category": "科技新闻", "pub_date": "2026-06-01", "click_count": 23051, "url": "https://finance.sina.com.cn/stock/usstock/c/2026-06-01/doc-inhzwuhs4001069.shtml"}, {"id": 91, "source": "新浪新闻", "title": "英国房价月环比出现下跌，这是伊朗冲突爆发以来首次", "category": "科技新闻", "pub_date": "2026-05-29", "click_count": 18993, "url": "https://finance.sina.com.cn/stock/usstock/c/2026-06-01/doc-inhzwuht2464245.shtml"}, {"id": 92, "source": "新浪新闻", "title": "以色列扩大在黎巴嫩的军事行动，停火希望受挫，国际油价大涨 2%", "category": "科技新闻", "pub_date": "2026-05-30", "click_count": 28334, "url": "https://finance.sina.com.cn/stock/usstock/c/2026-06-01/doc-inhzwuht2462017.shtml"}, {"id": 93, "source": "新浪新闻", "title": "人工智能交易热潮全面升温，推动股市创下历史新高", "category": "科技新闻", "pub_date": "2026-06-01", "click_count": 40054, "url": "https://finance.sina.com.cn/stock/usstock/c/2026-06-01/doc-inhzwuht2457823.shtml"}, {"id": 94, "source": "新浪新闻", "title": "中兴通讯CDO崔丽：未来竞争的关键是人机协同效率的竞争", "category": "科技新闻", "pub_date": "2026-05-29", "click_count": 83916, "url": "https://finance.sina.com.cn/tech/mobile/n/n/2026-06-01/doc-inhzwuhp5216450.shtml"}, {"id": 95, "source": "新浪新闻", "title": "中兴通讯CDO崔丽：全栈TCO最优成为AI基础设施竞争的关键", "category": "科技新闻", "pub_date": "2026-05-31", "click_count": 60855, "url": "https://finance.sina.com.cn/tech/mobile/n/n/2026-06-01/doc-inhzwuhm8438521.shtml"}, {"id": 96, "source": "新浪新闻", "title": "千寻位置CEO陈金培：北斗规模化应用迈入“新阶段”，与物理AI融合成核心机遇", "category": "科技新闻", "pub_date": "2026-05-30", "click_count": 63635, "url": "https://finance.sina.com.cn/tech/shenji/2026-06-01/doc-inhzwuhm8436558.shtml"}, {"id": 97, "source": "新浪新闻", "title": "美伊展开新一轮交火，和平斡旋仍在推进", "category": "科技新闻", "pub_date": "2026-05-29", "click_count": 77618, "url": "https://finance.sina.com.cn/stock/usstock/c/2026-06-01/doc-inhzwuhp5212790.shtml"}, {"id": 98, "source": "新浪新闻", "title": "软银时隔二十余年超越丰田，登顶日本市值榜首", "category": "科技新闻", "pub_date": "2026-05-31", "click_count": 60645, "url": "https://finance.sina.com.cn/stock/usstock/c/2026-06-01/doc-inhzwuht2449279.shtml"}, {"id": 99, "source": "新浪新闻", "title": "前任美联储主席鲍威尔：美联储正遭遇一场 “压力测试”", "category": "科技新闻", "pub_date": "2026-05-30", "click_count": 91386, "url": "https://finance.sina.com.cn/stock/usstock/c/2026-06-01/doc-inhzwuhs3979932.shtml"}, {"id": 100, "source": "新浪新闻", "title": "英伟达推出 PC 端 “超级芯片”，正面挑战苹果与英特尔", "category": "科技新闻", "pub_date": "2026-05-29", "click_count": 7558, "url": "https://finance.sina.com.cn/stock/usstock/c/2026-06-01/doc-inhzwuhm8427658.shtml"}];
+        var tbody = document.getElementById('sample-tbody');
+        for (var i = 0; i < sampleData.length; i++) {
+            var row = sampleData[i];
+            var tr = document.createElement('tr');
+            var titleHtml = row.url && row.url !== '#' 
+                ? `<a href="${row.url}" target="_blank" class="news-link" title="点击查看原文">${row.title}</a>`
+                : row.title;
+            tr.innerHTML = `<td>${i+1}</td><td>${row.source}</td><td>${titleHtml}</td><td>${row.category}</td><td>${row.pub_date}</td><td>${row.click_count}</td>`;
+            tbody.appendChild(tr);
+        }
+    </script>
+</body>
+</html>
